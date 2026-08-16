@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise User Manual & Help Guide Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    
+    @media print {
+      body { background: white; color: black; padding: 0; }
+      .no-print { display: none !important; }
+      .print-page { 
+        box-shadow: none !important; 
+        border: none !important; 
+        width: 100% !important; 
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 20px !important;
+        break-after: page;
+      }
+    }
+
+    [contenteditable="true"]:hover {
+      outline: 2px dashed #93c5fd;
+      border-radius: 4px;
+    }
+    [contenteditable="true"]:focus {
+      outline: 2px solid #3b82f6;
+      background-color: #f8fafc;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+
+  <!-- Top Navbar -->
+  <header class="no-print bg-slate-800 border-b border-slate-700 px-6 py-3 sticky top-0 z-50 flex items-center justify-between shadow-md">
+    <div class="flex items-center gap-3">
+      <div class="bg-blue-600 p-2 rounded-lg text-white">
+        <i class="fa-solid fa-book-bookmark"></i>
+      </div>
+      <div>
+        <h1 class="font-bold text-base text-slate-100">Manual & Guide Builder</h1>
+        <p class="text-xs text-slate-400">Object Documentation, Standardized Icons & FAQ Generator</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition flex items-center gap-2 shadow">
+        <i class="fa-solid fa-print"></i> Print / Save All as PDF
+      </button>
+      <button onclick="clearAllDocs()" class="bg-rose-900/40 hover:bg-rose-800 text-rose-200 border border-rose-700 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
+        <i class="fa-solid fa-trash-can"></i> Clear All Guides
+      </button>
+      <button onclick="resetInputs()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
+        <i class="fa-solid fa-rotate-left"></i> Reset Form
+      </button>
+    </div>
+  </header>
+
+  <div class="max-w-[1700px] mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <!-- LEFT PANEL: Input Configurator with Native Spellcheck -->
+    <div class="no-print lg:col-span-4 space-y-4">
+      <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+          <h2 class="font-bold text-sm text-slate-200 flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-blue-400"></i> Manual Parameters
+          </h2>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <i class="fa-solid fa-spell-check"></i> Spellchecker ON
+            </span>
+            <button onclick="loadSampleData()" class="text-xs text-indigo-400 hover:text-indigo-300 transition">
+              Load Sample
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <div>
+            <label class="font-medium text-slate-300 block mb-1">Guide / System Header Title</label>
+            <input type="text" id="docTitle" spellcheck="true" autocomplete="on" placeholder="e.g., Grants Management Platform - User Guide" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="font-medium text-slate-300 block mb-1">New Object Title</label>
+              <input type="text" id="objTitle" spellcheck="true" autocomplete="on" placeholder="e.g., Notice of Funding Announcement (NOFA)" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+              <label class="font-medium text-slate-300 block mb-1">Page / Tab Name</label>
+              <input type="text" id="pageName" spellcheck="true" autocomplete="on" placeholder="e.g., Manage Draft NOFAs & Overview" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="font-medium text-slate-300 block mb-1">Target User Role</label>
+              <input type="text" id="userRole" spellcheck="true" autocomplete="on" placeholder="e.g., Program Manager / Internal Grantor" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+              <label class="font-medium text-slate-300 block mb-1">Module / Navigation Path</label>
+              <input type="text" id="navPath" spellcheck="true" autocomplete="on" placeholder="e.g., NOFAs Tab > Activities > Manage Draft NOFAs" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
+
+          <div>
+            <label class="font-medium text-slate-300 block mb-1">Page Processing & Workflows (Raw Steps / Actions)</label>
+            <textarea id="procText" rows="6" spellcheck="true" placeholder="Describe what happens on this page. List out actions, buttons clicked, or post-save behavior...&#10;1. Open Draft NOFA table&#10;2. Complete General Information&#10;3. Click Save to generate tabs&#10;4. Submit for Approval" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 font-mono focus:outline-none focus:border-blue-500"></textarea>
+          </div>
+
+          <div>
+            <label class="font-medium text-slate-300 block mb-1">Field Inventory (1 per line: Name | Type | Mandatory/Optional | Description)</label>
+            <textarea id="fieldInventory" rows="4" spellcheck="true" placeholder="NOFA Title | Text | Mandatory | Name of funding opportunity&#10;Publish Date | Date Picker | Mandatory | Scheduled live public release date&#10;RFQ Required? | Checkbox | Optional | Enables pre-application phase" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 font-mono focus:outline-none focus:border-blue-500"></textarea>
+          </div>
+
+          <button onclick="generateAndAppendManual()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-2.5 rounded-lg shadow transition flex items-center justify-center gap-2 text-sm mt-2">
+            <i class="fa-solid fa-plus-circle"></i> Generate Editable User Manual
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-slate-800/40 border border-slate-800 rounded-xl p-4 text-xs text-slate-400 space-y-2">
+        <div class="font-semibold text-slate-300 flex items-center gap-1.5">
+          <i class="fa-solid fa-layer-group text-blue-400"></i> Operational Legend Integration
+        </div>
+        <p>• <span class="text-blue-400 font-semibold"><i class="fa-solid fa-arrow-pointer"></i> Click/Action</span> highlights buttons, links, and navigation clicks.</p>
+        <p>• <span class="text-amber-400 font-semibold"><i class="fa-solid fa-triangle-exclamation"></i> Important Reminder</span> flags system prerequisites, workflow conditions, and warnings.</p>
+        <p>• <span class="text-emerald-400 font-semibold"><i class="fa-solid fa-lock"></i> Required Parameter</span> marks mandatory inputs required to proceed without validation errors.</p>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: Stacked User Manual Documents Container -->
+    <div class="lg:col-span-8 space-y-8" id="documentsContainer">
+      <!-- Generated Manuals will be appended here -->
+    </div>
+
+  </div>
+
+  <script>
+    let documentCounter = 0;
+
+    window.onload = function() {
+      loadSampleData();
+    };
+
+    function loadSampleData() {
+      document.getElementById('docTitle').value = "Grants Management Platform - User Guide";
+      document.getElementById('objTitle').value = "Notice of Funding Announcement (NOFA)";
+      document.getElementById('pageName').value = "Manage Draft NOFAs & Overview";
+      document.getElementById('userRole').value = "Program Manager / Internal Grantor";
+      document.getElementById('navPath').value = "NOFAs Tab > Activities > Manage Draft NOFAs";
+      document.getElementById('procText').value = "1. Click on Manage Draft NOFAs link in the left panel under NOFAs tab.\n2. Click on the Create button at the top right of the table.\n3. Select the Program and NOFA Type from the dropdown menu.\n4. Complete all General Information, Dates, and Description fields.\n5. Click Save to generate subsequent Financials, Roles, and Attachments sub-tabs.\n6. Select Submit for Approval to trigger reviewer notifications.";
+      document.getElementById('fieldInventory').value = "NOFA Title | Text Input | Mandatory | Name of funding opportunity\nGrantor Organization | Lookup Dropdown | Mandatory | Owning administrative division\nEligible Applicant Types | Multi-select | Mandatory | Permitted entity classes\nNOFA Publish Date | Date Picker | Mandatory | Scheduled live public release date\nRFQ Required? | Checkbox | Optional | Enables preliminary qualification review phase";
+      
+      generateAndAppendManual();
+    }
+
+    function resetInputs() {
+      document.getElementById('docTitle').value = "";
+      document.getElementById('objTitle').value = "";
+      document.getElementById('pageName').value = "";
+      document.getElementById('userRole').value = "";
+      document.getElementById('navPath').value = "";
+      document.getElementById('procText').value = "";
+      document.getElementById('fieldInventory').value = "";
+    }
+
+    function clearAllDocs() {
+      if (confirm("Are you sure you want to clear all generated guide pages?")) {
+        document.getElementById('documentsContainer').innerHTML = "";
+        documentCounter = 0;
+      }
+    }
+
+    function removeDocument(id) {
+      const doc = document.getElementById(id);
+      if (doc) doc.remove();
+    }
+
+    function generateAndAppendManual() {
+      const docTitle = document.getElementById('docTitle').value.trim() || "Grants Management Platform - User Guide";
+      const objTitle = document.getElementById('objTitle').value.trim() || "System Object Guide";
+      const pageName = document.getElementById('pageName').value.trim() || "Workspace Execution";
+      const userRole = document.getElementById('userRole').value.trim() || "Operations Specialist";
+      const navPath = document.getElementById('navPath').value.trim() || "Navigation > Module Workspace";
+      const procText = document.getElementById('procText').value.trim();
+      const fieldText = document.getElementById('fieldInventory').value.trim();
+
+      documentCounter++;
+      const currentDocId = `doc-page-${documentCounter}`;
+      const img1Id = `previewImg1_${documentCounter}`;
+      const imgCont1Id = `imgContainer1_${documentCounter}`;
+      const uploadP1Id = `uploadPrompt1_${documentCounter}`;
+      const img2Id = `previewImg2_${documentCounter}`;
+      const imgCont2Id = `imgContainer2_${documentCounter}`;
+      const uploadP2Id = `uploadPrompt2_${documentCounter}`;
+
+      let stepsHtml = '';
+      if (procText) {
+        const lines = procText.split('\n').filter(l => l.trim().length > 0);
+        lines.forEach((line, idx) => {
+          const cleanText = line.replace(/^[\d+.\-*•]\s*/, '').trim();
+          const isClick = /click|select|press|choose|navigate|open/i.test(cleanText);
+          const isReq = /mandatory|required|must|fill|complete/i.test(cleanText);
+          
+          let badge = '';
+          if (isClick) {
+            badge = `<span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded inline-flex items-center gap-1"><i class="fa-solid fa-arrow-pointer"></i> Click/Action</span>`;
+          } else if (isReq) {
+            badge = `<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded inline-flex items-center gap-1"><i class="fa-solid fa-lock"></i> Required Parameter</span>`;
+          } else {
+            badge = `<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded inline-flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> Important Reminder</span>`;
+          }
+
+          stepsHtml += `
+            <div class="p-3 bg-slate-50 border-l-4 border-blue-500 rounded space-y-1.5">
+              <div class="flex items-center justify-between">
+                <p class="font-bold text-slate-900" spellcheck="true">Step ${idx + 1}: ${cleanText.split('.')[0] || 'Execute Operation'}</p>
+                ${badge}
+              </div>
+              <p contenteditable="true" spellcheck="true" class="text-slate-700 text-xs">${cleanText}</p>
+            </div>
+          `;
+        });
+      } else {
+        stepsHtml = `
+          <div class="p-3 bg-slate-50 border-l-4 border-blue-500 rounded space-y-1.5">
+            <div class="flex items-center justify-between">
+              <p class="font-bold text-slate-900" spellcheck="true">Step 1: Open Target View</p>
+              <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded inline-flex items-center gap-1"><i class="fa-solid fa-arrow-pointer"></i> Click/Action</span>
+            </div>
+            <p contenteditable="true" spellcheck="true" class="text-slate-700 text-xs">Navigate to the main object tab and click on the 'New' or 'Create' button located on the top right table header.</p>
+          </div>
+          <div class="p-3 bg-slate-50 border-l-4 border-emerald-500 rounded space-y-1.5">
+            <div class="flex items-center justify-between">
+              <p class="font-bold text-slate-900" spellcheck="true">Step 2: Enter Mandatory Metadata</p>
+              <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded inline-flex items-center gap-1"><i class="fa-solid fa-lock"></i> Required Parameter</span>
+            </div>
+            <p contenteditable="true" spellcheck="true" class="text-slate-700 text-xs">Complete all required fields designated with an asterisk. Ensure valid dates and lookup mappings are selected.</p>
+          </div>
+        `;
+      }
+
+      let tableRows = '';
+      if (fieldText) {
+        const fieldLines = fieldText.split('\n').filter(l => l.trim().length > 0);
+        fieldLines.forEach(line => {
+          const parts = line.split('|').map(p => p.trim());
+          const name = parts[0] || "Attribute Field";
+          const type = parts[1] || "Text";
+          const req = parts[2] || "Optional";
+          const desc = parts[3] || "Data requirement details";
+
+          const reqBadge = /mandatory|required/i.test(req)
+            ? `<span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px] inline-flex items-center gap-1"><i class="fa-solid fa-lock text-[9px]"></i> Required Parameter</span>`
+            : `<span class="bg-slate-100 text-slate-600 font-semibold px-2 py-0.5 rounded text-[10px]">Optional</span>`;
+
+          tableRows += `
+            <tr>
+              <td class="p-2.5 font-semibold text-slate-900" contenteditable="true" spellcheck="true">${name}</td>
+              <td class="p-2.5 font-mono text-[11px] text-slate-600" contenteditable="true" spellcheck="true">${type}</td>
+              <td class="p-2.5">${reqBadge}</td>
+              <td class="p-2.5 text-slate-700" contenteditable="true" spellcheck="true">${desc}</td>
+            </tr>
+          `;
+        });
+      } else {
+        tableRows = `
+          <tr>
+            <td class="p-2.5 font-semibold text-slate-900" contenteditable="true" spellcheck="true">Title / Record Name</td>
+            <td class="p-2.5 font-mono text-[11px] text-slate-600" contenteditable="true" spellcheck="true">Text</td>
+            <td class="p-2.5"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px] inline-flex items-center gap-1"><i class="fa-solid fa-lock text-[9px]"></i> Required Parameter</span></td>
+            <td class="p-2.5 text-slate-700" contenteditable="true" spellcheck="true">Unique naming identifier for the object record.</td>
+          </tr>
+        `;
+      }
+
+      const docCardHtml = `
+        <div id="${currentDocId}" class="print-page bg-white text-slate-900 rounded-xl shadow-2xl p-8 md:p-12 border border-slate-200 space-y-6 relative transition">
+          
+          <div class="no-print absolute top-4 right-4 flex items-center gap-2">
+            <span class="text-[10px] bg-slate-100 text-slate-600 border border-slate-300 font-mono px-2 py-1 rounded">Section #${documentCounter}</span>
+            <button onclick="removeDocument('${currentDocId}')" class="text-xs text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 p-1.5 rounded transition" title="Delete this guide page">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+
+          <!-- Document Header -->
+          <div class="border-b-2 border-blue-600 pb-4 flex items-center justify-between">
+            <div>
+              <span class="text-xs uppercase font-bold tracking-widest text-blue-700" contenteditable="true" spellcheck="true">${docTitle}</span>
+              <h1 class="text-2xl font-black text-slate-900 mt-1" contenteditable="true" spellcheck="true">${objTitle} - ${pageName}</h1>
+            </div>
+            <div class="text-right text-xs text-slate-500">
+              <p><strong>Section:</strong> <span contenteditable="true" spellcheck="true">Chapter ${documentCounter}.0</span></p>
+              <p><strong>Status:</strong> <span contenteditable="true" spellcheck="true" class="text-emerald-700 font-semibold">Active Reference</span></p>
+            </div>
+          </div>
+
+          <!-- Operational Legend -->
+          <div class="bg-slate-50 border border-slate-200 p-3 rounded text-xs text-slate-700 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+              <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded inline-flex items-center gap-1"><i class="fa-solid fa-arrow-pointer"></i> Click/Action</span>
+              <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded inline-flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> Important Reminder</span>
+              <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded inline-flex items-center gap-1"><i class="fa-solid fa-lock"></i> Required Parameter</span>
+            </div>
+            <span class="text-[11px] text-slate-500 italic">Visual Standard Guide</span>
+          </div>
+
+          <!-- Section 1: Overview & Navigation Scope -->
+          <section class="space-y-2">
+            <h2 class="text-base font-bold text-slate-900 border-b border-slate-200 pb-1 flex items-center gap-2">
+              <span class="bg-blue-600 text-white rounded px-1.5 py-0.5 text-xs">1</span>
+              Overview & Navigation Scope
+            </h2>
+            <p class="text-xs text-slate-600 leading-relaxed" contenteditable="true" spellcheck="true">
+              This document establishes the operational guide for executing tasks within <strong>${pageName}</strong> for the <strong>${objTitle}</strong> module. All required attributes must be validated prior to advancing status lifecycles.
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <div class="bg-slate-50 p-3 rounded border border-slate-200 text-xs">
+                <span class="font-bold text-slate-700 block mb-0.5">Primary Target Role:</span>
+                <span contenteditable="true" spellcheck="true" class="text-blue-700 font-semibold">${userRole}</span>
+              </div>
+              <div class="bg-slate-50 p-3 rounded border border-slate-200 text-xs">
+                <span class="font-bold text-slate-700 block mb-0.5">System Navigation Path:</span>
+                <span contenteditable="true" spellcheck="true" class="text-slate-800 font-mono">${navPath}</span>
+              </div>
+            </div>
+
+            <div class="mt-3 p-3 bg-amber-50/70 border-l-4 border-amber-500 rounded text-xs text-amber-900 space-y-1">
+              <p class="font-bold flex items-center gap-1.5">
+                <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> Important Reminder
+              </p>
+              <p contenteditable="true" spellcheck="true">
+                Ensure you are logged in with assigned <strong>${userRole}</strong> credentials before initiating changes. Records in an approved state require administrative unlock permissions to edit.
+              </p>
+            </div>
+          </section>
+
+          <!-- Screenshot Block 1 -->
+          <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 bg-slate-50 text-center space-y-3 relative group">
+            <div id="${imgCont1Id}" class="hidden">
+              <img id="${img1Id}" class="max-h-72 mx-auto rounded border shadow" src="" alt="Screenshot" />
+            </div>
+            <div id="${uploadP1Id}" class="py-6">
+              <i class="fa-solid fa-image text-slate-400 text-3xl mb-2"></i>
+              <p class="text-xs font-semibold text-slate-600">Figure ${documentCounter}.1: ${pageName} Navigation & Primary Controls</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">Attach screen capture of navigation tab and action buttons</p>
+              <label class="no-print mt-3 inline-block bg-white hover:bg-slate-100 text-slate-700 font-medium text-xs px-3 py-1.5 rounded border border-slate-300 shadow-sm cursor-pointer transition">
+                <i class="fa-solid fa-upload mr-1 text-blue-500"></i> Upload Screenshot
+                <input type="file" class="hidden" accept="image/*" onchange="handleImageUpload(event, '${img1Id}', '${imgCont1Id}', '${uploadP1Id}')">
+              </label>
+            </div>
+            <p class="text-[11px] text-slate-600 text-left border-t border-slate-200 pt-2 flex items-center gap-1.5" contenteditable="true" spellcheck="true">
+              <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-1.5 py-0.2 rounded inline-flex items-center gap-1"><i class="fa-solid fa-arrow-pointer"></i> Click/Action</span>
+              <span><strong>Figure ${documentCounter}.1:</strong> Click the highlighted Action button in the upper right header to begin record entry.</span>
+            </p>
+          </div>
+
+          <!-- Section 2: Step-by-Step Instructions -->
+          <section class="space-y-3">
+            <h2 class="text-base font-bold text-slate-900 border-b border-slate-200 pb-1 flex items-center gap-2">
+              <span class="bg-blue-600 text-white rounded px-1.5 py-0.5 text-xs">2</span>
+              Step-by-Step Execution Workflow
+            </h2>
+            <div class="space-y-2.5 text-xs text-slate-700">
+              ${stepsHtml}
+            </div>
+          </section>
+
+          <!-- Section 3: Data Dictionary -->
+          <section class="space-y-3">
+            <h2 class="text-base font-bold text-slate-900 border-b border-slate-200 pb-1 flex items-center gap-2">
+              <span class="bg-blue-600 text-white rounded px-1.5 py-0.5 text-xs">3</span>
+              Field Specifications & Required Parameters
+            </h2>
+            
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border border-slate-200 rounded">
+                <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                  <tr>
+                    <th class="p-2.5">Field / Element</th>
+                    <th class="p-2.5">Control Type</th>
+                    <th class="p-2.5">Requirement Status</th>
+                    <th class="p-2.5">Description & Business Rules</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 text-slate-700">
+                  ${tableRows}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Screenshot Block 2 -->
+          <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 bg-slate-50 text-center space-y-3 relative group">
+            <div id="${imgCont2Id}" class="hidden">
+              <img id="${img2Id}" class="max-h-72 mx-auto rounded border shadow" src="" alt="Screenshot" />
+            </div>
+            <div id="${uploadP2Id}" class="py-6">
+              <i class="fa-solid fa-image text-slate-400 text-3xl mb-2"></i>
+              <p class="text-xs font-semibold text-slate-600">Figure ${documentCounter}.2: Form Details & Confirmation State</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">Attach screen capture of completed form or saved confirmation</p>
+              <label class="no-print mt-3 inline-block bg-white hover:bg-slate-100 text-slate-700 font-medium text-xs px-3 py-1.5 rounded border border-slate-300 shadow-sm cursor-pointer transition">
+                <i class="fa-solid fa-upload mr-1 text-blue-500"></i> Upload Screenshot
+                <input type="file" class="hidden" accept="image/*" onchange="handleImageUpload(event, '${img2Id}', '${imgCont2Id}', '${uploadP2Id}')">
+              </label>
+            </div>
+            <p class="text-[11px] text-slate-600 text-left border-t border-slate-200 pt-2 flex items-center gap-1.5" contenteditable="true" spellcheck="true">
+              <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.2 rounded inline-flex items-center gap-1"><i class="fa-solid fa-lock"></i> Required Parameter</span>
+              <span><strong>Figure ${documentCounter}.2:</strong> Verify that all mandatory fields are filled before clicking Save or Submit.</span>
+            </p>
+          </div>
+
+          <!-- Section 4: Help Guide & FAQs -->
+          <section class="space-y-3">
+            <h2 class="text-base font-bold text-slate-900 border-b border-slate-200 pb-1 flex items-center gap-2">
+              <span class="bg-blue-600 text-white rounded px-1.5 py-0.5 text-xs">4</span>
+              Frequently Asked Questions (FAQ) & Troubleshooting
+            </h2>
+            <div class="space-y-2 text-xs">
+              <div class="p-3 bg-slate-50 rounded border border-slate-200 space-y-1">
+                <p class="font-bold text-slate-900 flex items-center gap-1.5" contenteditable="true" spellcheck="true">
+                  <i class="fa-regular fa-circle-question text-blue-600"></i> Q: What happens after clicking 'Submit for Approval'?
+                </p>
+                <p class="text-slate-600" contenteditable="true" spellcheck="true">A: Automated email notifications and pending queue tasks are immediately dispatched to designated review roles.</p>
+              </div>
+              <div class="p-3 bg-slate-50 rounded border border-slate-200 space-y-1">
+                <p class="font-bold text-slate-900 flex items-center gap-1.5" contenteditable="true" spellcheck="true">
+                  <i class="fa-regular fa-circle-question text-blue-600"></i> Q: What should I do if validation errors prevent saving?
+                </p>
+                <p class="text-slate-600" contenteditable="true" spellcheck="true">A: Review all <span class="bg-emerald-100 text-emerald-800 px-1 rounded font-semibold">Required Parameter</span> items marked with an asterisk and ensure date formats follow standard MM/DD/YYYY convention.</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Document Footer -->
+          <div class="border-t border-slate-200 pt-4 flex items-center justify-between text-[11px] text-slate-400">
+            <span contenteditable="true" spellcheck="true">Confidential - Internal Standard Operating Procedure</span>
+            <span contenteditable="true" spellcheck="true">Chapter ${documentCounter}</span>
+          </div>
+
+        </div>
+      `;
+
+      const container = document.getElementById('documentsContainer');
+      container.insertAdjacentHTML('beforeend', docCardHtml);
+      
+      const newElem = document.getElementById(currentDocId);
+      if (newElem) {
+        newElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    function handleImageUpload(event, imgId, containerId, promptId) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById(imgId).src = e.target.result;
+          document.getElementById(containerId).classList.remove('hidden');
+          document.getElementById(promptId).classList.add('hidden');
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+  </script>
+</body>
+</html>
