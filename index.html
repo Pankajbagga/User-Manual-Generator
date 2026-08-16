@@ -109,7 +109,7 @@
                 <label class="font-medium text-slate-300">New Object Title</label>
                 <span id="objTitle_err" class="text-[10px] text-rose-400 font-mono hidden"></span>
               </div>
-              <textarea id="objTitle" rows="1" lang="en" spellcheck="true" oninput="runAutonomousSpellcheck(this, 'objTitle_err')" placeholder="e.g., Notice of Funding Announcement (NOFO)" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500 resize-none"></textarea>
+              <textarea id="objTitle" rows="1" lang="en" spellcheck="true" oninput="runAutonomousSpellcheck(this, 'objTitle_err')" placeholder="e.g., Notice of Funding Opportunity (NOFO)" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500 resize-none"></textarea>
             </div>
             <div>
               <div class="flex justify-between items-center mb-1">
@@ -189,7 +189,7 @@
 
     function loadSampleData() {
       document.getElementById('docTitle').value = "Grants Management Platform - User Guide";
-      document.getElementById('objTitle').value = "Notice of Funding Announcement (NOFO)";
+      document.getElementById('objTitle').value = "Notice of Funding Opportunity (NOFO)";
       document.getElementById('pageName').value = "Manage Draft NOFOs & Overview";
       document.getElementById('userRole').value = "Program Manager / Internal Grantor";
       document.getElementById('navPath').value = "NOFOs Tab > Activities > Manage Draft NOFOs";
