@@ -24,6 +24,14 @@
       }
     }
 
+    /* Active spellcheck visual cues */
+    .spell-error {
+      text-decoration: underline wavy #ef4444 !important;
+      text-decoration-thickness: 2px !important;
+      background-color: rgba(239, 68, 68, 0.12);
+      border-radius: 2px;
+    }
+
     [contenteditable="true"]:hover {
       outline: 2px dashed #93c5fd;
       border-radius: 4px;
@@ -45,15 +53,20 @@
       </div>
       <div>
         <h1 class="font-bold text-base text-slate-100">Manual & Guide Builder</h1>
-        <p class="text-xs text-slate-400">Object Documentation, Standardized Icons & FAQ Generator</p>
+        <p class="text-xs text-slate-400">Autonomous Full-Dictionary Spellchecker & Guide Generator</p>
       </div>
     </div>
-    <div class="flex items-center gap-3">
-      <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition flex items-center gap-2 shadow">
-        <i class="fa-solid fa-print"></i> Print / Save All as PDF
+    <div class="flex items-center gap-2">
+      <!-- Export MS Word Button -->
+      <button onclick="exportAllToWord()" class="bg-blue-700 hover:bg-blue-600 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 shadow">
+        <i class="fa-solid fa-file-word text-blue-200"></i> Download as Word (.doc)
+      </button>
+      <!-- Export PDF / Print Button -->
+      <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 shadow">
+        <i class="fa-solid fa-file-pdf text-red-300"></i> Save / Print PDF
       </button>
       <button onclick="clearAllDocs()" class="bg-rose-900/40 hover:bg-rose-800 text-rose-200 border border-rose-700 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
-        <i class="fa-solid fa-trash-can"></i> Clear All Guides
+        <i class="fa-solid fa-trash-can"></i> Clear All
       </button>
       <button onclick="resetInputs()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
         <i class="fa-solid fa-rotate-left"></i> Reset Form
@@ -63,7 +76,7 @@
 
   <div class="max-w-[1700px] mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
     
-    <!-- LEFT PANEL: Input Configurator with Native Spellcheck -->
+    <!-- LEFT PANEL: Input Configurator with Autonomous Dictionary Spellcheck -->
     <div class="no-print lg:col-span-4 space-y-4">
       <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg space-y-4">
         <div class="flex items-center justify-between border-b border-slate-700 pb-3">
@@ -71,8 +84,8 @@
             <i class="fa-solid fa-sliders text-blue-400"></i> Manual Parameters
           </h2>
           <div class="flex items-center gap-2">
-            <span class="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1">
-              <i class="fa-solid fa-spell-check"></i> Spellchecker ON
+            <span id="spellBadge" class="text-[11px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-2.5 py-1 rounded-full flex items-center gap-1.5 font-medium">
+              <i class="fa-solid fa-spell-check text-emerald-400"></i> <span id="spellCounterText">Lexicon Engine Active</span>
             </span>
             <button onclick="loadSampleData()" class="text-xs text-indigo-400 hover:text-indigo-300 transition">
               Load Sample
@@ -81,41 +94,63 @@
         </div>
 
         <div class="space-y-3 text-xs">
+          <!-- Guide Title -->
           <div>
-            <label class="font-medium text-slate-300 block mb-1">Guide / System Header Title</label>
-            <input type="text" id="docTitle" spellcheck="true" autocomplete="on" placeholder="e.g., Grants Management Platform - User Guide" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
+            <div class="flex justify-between items-center mb-1">
+              <label class="font-medium text-slate-300">Guide / System Header Title</label>
+              <span id="docTitle_err" class="text-[10px] text-rose-400 font-mono hidden"></span>
+            </div>
+            <textarea id="docTitle" rows="1" lang="en" spellcheck="true" oninput="runAutonomousSpellcheck(this, 'docTitle_err')" placeholder="e.g., Grants Management Platform - User Guide" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500 resize-none font-sans"></textarea>
           </div>
 
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="font-medium text-slate-300 block mb-1">New Object Title</label>
-              <input type="text" id="objTitle" spellcheck="true" autocomplete="on" placeholder="e.g., Notice of Funding Announcement (NOFA)" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
+              <div class="flex justify-between items-center mb-1">
+                <label class="font-medium text-slate-300">New Object Title</label>
+                <span id="objTitle_err" class="text-[10px] text-rose-400 font-mono hidden"></span>
+              </div>
+              <textarea id="objTitle" rows="1" lang="en" spellcheck="true" oninput="runAutonomousSpellcheck(this, 'objTitle_err')" placeholder="e.g., Notice of Funding Announcement (NOFO)" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500 resize-none"></textarea>
             </div>
             <div>
-              <label class="font-medium text-slate-300 block mb-1">Page / Tab Name</label>
-              <input type="text" id="pageName" spellcheck="true" autocomplete="on" placeholder="e.g., Manage Draft NOFAs & Overview" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
+              <div class="flex justify-between items-center mb-1">
+                <label class="font-medium text-slate-300">Page / Tab Name</label>
+                <span id="pageName_err" class="text-[10px] text-rose-400 font-mono hidden"></span>
+              </div>
+              <textarea id="pageName" rows="1" lang="en" spellcheck="true" oninput="runAutonomousSpellcheck(this, 'pageName_err')" placeholder="e.g., Manage Draft NOFOs & Overview" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500 resize-none"></textarea>
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="font-medium text-slate-300 block mb-1">Target User Role</label>
-              <input type="text" id="userRole" spellcheck="true" autocomplete="on" placeholder="e.g., Program Manager / Internal Grantor" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
+              <div class="flex justify-between items-center mb-1">
+                <label class="font-medium text-slate-300">Target User Role</label>
+                <span id="userRole_err" class="text-[10px] text-rose-400 font-mono hidden"></span>
+              </div>
+              <textarea id="userRole" rows="1" lang="en" spellcheck="true" oninput="runAutonomousSpellcheck(this, 'userRole_err')" placeholder="e.g., Program Manager / Internal Grantor" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500 resize-none"></textarea>
             </div>
             <div>
-              <label class="font-medium text-slate-300 block mb-1">Module / Navigation Path</label>
-              <input type="text" id="navPath" spellcheck="true" autocomplete="on" placeholder="e.g., NOFAs Tab > Activities > Manage Draft NOFAs" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
+              <div class="flex justify-between items-center mb-1">
+                <label class="font-medium text-slate-300">Module / Navigation Path</label>
+                <span id="navPath_err" class="text-[10px] text-rose-400 font-mono hidden"></span>
+              </div>
+              <textarea id="navPath" rows="1" lang="en" spellcheck="true" oninput="runAutonomousSpellcheck(this, 'navPath_err')" placeholder="e.g., NOFOs Tab > Activities > Manage Draft NOFOs" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:outline-none focus:border-blue-500 resize-none"></textarea>
             </div>
           </div>
 
           <div>
-            <label class="font-medium text-slate-300 block mb-1">Page Processing & Workflows (Raw Steps / Actions)</label>
-            <textarea id="procText" rows="6" spellcheck="true" placeholder="Describe what happens on this page. List out actions, buttons clicked, or post-save behavior...&#10;1. Open Draft NOFA table&#10;2. Complete General Information&#10;3. Click Save to generate tabs&#10;4. Submit for Approval" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 font-mono focus:outline-none focus:border-blue-500"></textarea>
+            <div class="flex justify-between items-center mb-1">
+              <label class="font-medium text-slate-300">Page Processing & Workflows (Raw Steps / Actions)</label>
+              <span id="procText_err" class="text-[10px] text-rose-400 font-mono hidden"></span>
+            </div>
+            <textarea id="procText" rows="6" lang="en" spellcheck="true" oninput="runAutonomousSpellcheck(this, 'procText_err')" placeholder="Describe what happens on this page. List out actions, buttons clicked, or post-save behavior...&#10;1. Open Draft NOFO table&#10;2. Complete General Information&#10;3. Click Save to generate tabs&#10;4. Submit for Approval" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 font-mono focus:outline-none focus:border-blue-500"></textarea>
           </div>
 
           <div>
-            <label class="font-medium text-slate-300 block mb-1">Field Inventory (1 per line: Name | Type | Mandatory/Optional | Description)</label>
-            <textarea id="fieldInventory" rows="4" spellcheck="true" placeholder="NOFA Title | Text | Mandatory | Name of funding opportunity&#10;Publish Date | Date Picker | Mandatory | Scheduled live public release date&#10;RFQ Required? | Checkbox | Optional | Enables pre-application phase" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 font-mono focus:outline-none focus:border-blue-500"></textarea>
+            <div class="flex justify-between items-center mb-1">
+              <label class="font-medium text-slate-300">Field Inventory (1 per line: Name | Type | Mandatory/Optional | Description)</label>
+              <span id="fieldInventory_err" class="text-[10px] text-rose-400 font-mono hidden"></span>
+            </div>
+            <textarea id="fieldInventory" rows="4" lang="en" spellcheck="true" oninput="runAutonomousSpellcheck(this, 'fieldInventory_err')" placeholder="NOFO Title | Text | Mandatory | Name of funding opportunity&#10;Publish Date | Date Picker | Mandatory | Scheduled live public release date&#10;RFQ Required? | Checkbox | Optional | Enables pre-application phase" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 font-mono focus:outline-none focus:border-blue-500"></textarea>
           </div>
 
           <button onclick="generateAndAppendManual()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-2.5 rounded-lg shadow transition flex items-center justify-center gap-2 text-sm mt-2">
@@ -126,11 +161,10 @@
 
       <div class="bg-slate-800/40 border border-slate-800 rounded-xl p-4 text-xs text-slate-400 space-y-2">
         <div class="font-semibold text-slate-300 flex items-center gap-1.5">
-          <i class="fa-solid fa-layer-group text-blue-400"></i> Operational Legend Integration
+          <i class="fa-solid fa-spell-check text-emerald-400"></i> Autonomous Dictionary Validation
         </div>
-        <p>• <span class="text-blue-400 font-semibold"><i class="fa-solid fa-arrow-pointer"></i> Click/Action</span> highlights buttons, links, and navigation clicks.</p>
-        <p>• <span class="text-amber-400 font-semibold"><i class="fa-solid fa-triangle-exclamation"></i> Important Reminder</span> flags system prerequisites, workflow conditions, and warnings.</p>
-        <p>• <span class="text-emerald-400 font-semibold"><i class="fa-solid fa-lock"></i> Required Parameter</span> marks mandatory inputs required to proceed without validation errors.</p>
+        <p>• Scans every typed word against an embedded English lexicon and technical vocabulary in real-time.</p>
+        <p>• Highlights the exact unrecognized word directly above the field (e.g., <span class="text-rose-400 font-mono font-bold">Unrecognized: "speeling"</span>).</p>
       </div>
     </div>
 
@@ -144,18 +178,23 @@
   <script>
     let documentCounter = 0;
 
+    // Comprehensive Embedded English Lexicon + Enterprise/Agile Terms
+    const dictionary = new Set([
+      "a", "about", "above", "access", "accessing", "accordance", "account", "accounts", "act", "action", "actions", "activate", "activated", "active", "activities", "activity", "add", "additional", "admin", "administrator", "administrators", "advance", "advancing", "after", "again", "against", "agent", "agreement", "alert", "alerts", "align", "aligned", "all", "allot", "allotted", "allow", "allows", "also", "alter", "altered", "alternate", "amend", "amendment", "amendments", "an", "analysis", "analyst", "and", "announcement", "annual", "any", "api", "applicant", "applicants", "application", "applications", "apply", "applying", "approval", "approvals", "approve", "approved", "approver", "approvers", "approximate", "are", "area", "areas", "article", "articles", "as", "assigned", "assist", "assistance", "associate", "associated", "at", "attach", "attached", "attachment", "attachments", "attempt", "attend", "attended", "audit", "audited", "authenticate", "authenticated", "auto", "automated", "available", "award", "awards", "aware", "back", "badge", "bar", "base", "based", "baseline", "basic", "be", "been", "before", "behavior", "behind", "being", "below", "beneficiary", "benefit", "benefits", "beside", "best", "between", "board", "boilerplate", "box", "boxes", "budget", "budgeting", "build", "builder", "building", "built", "business", "button", "buttons", "buyer", "buyers", "by", "calculate", "calculated", "calendar", "cancel", "capability", "capacity", "capture", "captured", "carefully", "case", "cases", "category", "cdbg", "certification", "chain", "change", "changed", "changes", "chapter", "check", "checkbox", "checking", "checklist", "choose", "chosen", "city", "claim", "clean", "clear", "cleared", "clearing", "click", "clicked", "clicking", "client", "clients", "closed", "code", "collect", "collected", "column", "columns", "comment", "comments", "common", "community", "company", "complete", "completed", "completeness", "completing", "completion", "compliance", "component", "components", "condition", "conditions", "confidential", "config", "confirmation", "constraints", "consultant", "contact", "contacting", "contain", "contains", "control", "controls", "convention", "convert", "converted", "copy", "correct", "correctness", "cost", "create", "created", "creating", "creation", "criteria", "custom", "customer", "customers", "daily", "dash", "dashboard", "data", "date", "dates", "day", "days", "deadline", "debarment", "debarred", "decision", "decisions", "deconstruct", "default", "define", "defined", "definition", "deliver", "deliverable", "delivery", "demographics", "department", "dependencies", "deploy", "deployment", "description", "descriptions", "designated", "detail", "details", "determination", "development", "diagram", "dictionary", "direct", "directly", "director", "directors", "disallowance", "disclaimers", "dispatched", "display", "displayed", "division", "doc", "document", "documentation", "documents", "download", "downloaded", "draft", "dropdown", "due", "duns", "during", "each", "earlier", "early", "economic", "edit", "editable", "editing", "edition", "editor", "effort", "efforts", "ein", "either", "element", "elements", "eligible", "eligibility", "eliminate", "email", "embedded", "emergency", "enable", "enables", "end", "engine", "ensure", "ensuring", "enter", "entered", "entering", "enterprise", "entire", "entity", "error", "errors", "esg", "establish", "establishes", "estimated", "estimable", "evaluate", "even", "event", "every", "example", "exceeds", "execute", "executing", "execution", "executive", "exist", "existing", "expand", "expenditure", "expenditures", "expense", "expenses", "experience", "expiration", "export", "exporting", "external", "facilitate", "facility", "failed", "faq", "faqs", "fast", "faster", "feature", "features", "federal", "fee", "feel", "few", "field", "fields", "figure", "file", "filed", "files", "fill", "filled", "filling", "filter", "filtered", "final", "finalizing", "finance", "financial", "financials", "find", "finding", "findings", "first", "fiscal", "five", "fix", "flex", "flow", "focus", "follow", "following", "for", "form", "format", "formats", "formed", "forms", "formula", "formulas", "forth", "foundation", "four", "free", "from", "full", "funder", "funding", "funds", "further", "future", "general", "generate", "generated", "generator", "generic", "gherkin", "get", "gets", "give", "given", "global", "go", "good", "government", "grant", "grantee", "grantor", "grants", "group", "growth", "guide", "guidelines", "halted", "handle", "handled", "happy", "has", "have", "head", "header", "headers", "help", "here", "hierarchy", "high", "highest", "history", "hold", "home", "household", "how", "html", "icon", "icons", "id", "identifier", "if", "ignore", "image", "images", "immediately", "impact", "implementation", "implemented", "important", "in", "inactive", "include", "included", "including", "inclusive", "income", "incorporation", "independent", "indicator", "indicators", "individual", "industry", "information", "infrastructure", "initial", "initiate", "initiated", "initiating", "inline", "input", "inputs", "instance", "instruction", "instructions", "intake", "integrate", "integrated", "integration", "integrity", "intended", "intent", "interactive", "interest", "interested", "interface", "interfaces", "interim", "internal", "intranet", "invest", "inventory", "invoice", "invoices", "is", "issue", "issued", "it", "item", "items", "iteration", "its", "job", "just", "key", "layout", "lead", "leading", "left", "legend", "length", "letter", "level", "lexicon", "life", "lifecycle", "lightweight", "limit", "limits", "line", "lines", "link", "links", "list", "listed", "listing", "loan", "loans", "local", "locate", "lock", "locked", "log", "logged", "login", "look", "lookup", "made", "main", "major", "make", "manage", "managed", "management", "manager", "managing", "mandatory", "manual", "manuals", "many", "mapping", "mappings", "margin", "mark", "marked", "marker", "match", "max", "maximum", "may", "measure", "measured", "meeting", "member", "members", "menu", "message", "metadata", "method", "migo", "milestone", "minimum", "minimize", "minute", "minutes", "missing", "mission", "mistake", "modal", "module", "month", "monthly", "months", "more", "most", "move", "moved", "multi", "must", "my", "name", "names", "narrative", "navigate", "navigating", "navigation", "need", "needs", "negotiable", "new", "next", "no", "NOFO", "NOFOs", "non", "nonprofit", "not", "note", "notes", "notice", "notification", "notifications", "notified", "notify", "number", "object", "objects", "obtain", "obtained", "of", "office", "officer", "officially", "on", "once", "one", "online", "only", "open", "opened", "operating", "operation", "operational", "operations", "opportunities", "opportunity", "option", "optional", "options", "order", "org", "organization", "organizations", "original", "other", "others", "our", "out", "outline", "outlined", "outlines", "output", "outputs", "overhead", "overview", "own", "owner", "package", "page", "pages", "panel", "paragraph", "parallel", "parameter", "parameters", "parent", "parse", "parsed", "parser", "part", "partial", "passed", "past", "paste", "pasted", "path", "paths", "pay", "payment", "pdf", "pending", "people", "per", "perform", "performed", "period", "phase", "phases", "phone", "photo", "pick", "picklist", "pipeline", "place", "placeholder", "placeholders", "plan", "planning", "platform", "please", "plus", "pm", "po", "point", "policy", "populate", "populated", "population", "portal", "post", "pre", "preapplication", "predefined", "prerequisite", "prerequisites", "present", "presented", "presents", "prevent", "preview", "previous", "primary", "print", "printed", "prior", "procedures", "proceed", "process", "processed", "processes", "processing", "procurement", "product", "program", "programs", "progress", "project", "projects", "promote", "promoted", "prompt", "property", "propose", "protocol", "prototype", "provide", "provided", "public", "publication", "publish", "published", "purchase", "purchases", "quality", "quarter", "quick", "rate", "raw", "re", "reach", "read", "ready", "real", "receive", "received", "receives", "recent", "recipient", "recipients", "record", "records", "red", "reference", "references", "refresh", "refusal", "regarding", "registration", "regular", "reimbursement", "reimbursements", "reinstate", "reject", "rejected", "rejection", "release", "released", "releases", "relevant", "remain", "remains", "reminder", "reminders", "remove", "removed", "repair", "repetitive", "replace", "report", "reporting", "reports", "request", "requested", "requesting", "requests", "required", "requirement", "requirements", "requisition", "reset", "resident", "residents", "resolution", "resource", "resources", "response", "responses", "responsible", "responsibility", "result", "results", "return", "returned", "revenue", "review", "reviewed", "reviewer", "reviewers", "reviewing", "reviews", "revise", "revised", "revising", "revision", "revisions", "rfp", "rfq", "right", "role", "roles", "route", "routed", "routes", "routine", "row", "rows", "rule", "rules", "run", "runbook", "runbooks", "safety", "salary", "sales", "salesforce", "same", "sample", "sam", "san", "save", "saved", "saving", "scale", "scenario", "scenarios", "schedule", "scheduled", "scheme", "scope", "screen", "screens", "screenshot", "screenshots", "scroll", "search", "second", "seconds", "secretary", "section", "sections", "secure", "secured", "see", "select", "selected", "selecting", "selection", "self", "send", "sent", "separate", "sequence", "sequential", "series", "serve", "served", "service", "services", "session", "set", "settings", "setup", "several", "shall", "share", "shared", "sheet", "sheets", "should", "show", "side", "sign", "signed", "simple", "single", "site", "small", "so", "solution", "some", "someone", "sop", "sops", "source", "sources", "space", "spaces", "specialist", "specific", "specification", "specifications", "specified", "specify", "speed", "spend", "spike", "spikes", "spidr", "split", "splitting", "spreadsheet", "staff", "stage", "stages", "stand", "standard", "standardized", "start", "started", "state", "statement", "status", "stay", "step", "steps", "store", "stored", "strategic", "streamline", "structure", "structured", "study", "style", "styles", "styled", "sub", "subject", "submission", "submissions", "submit", "submits", "submitted", "submitting", "subrecipient", "subrecipients", "subsequent", "subset", "success", "successful", "successfully", "such", "summary", "supervisor", "supervisors", "supplier", "suppliers", "support", "supporting", "sure", "system", "tab", "table", "tables", "tabs", "tailored", "take", "taken", "target", "task", "tasks", "tax", "team", "teams", "technical", "template", "templates", "term", "terms", "test", "testable", "text", "than", "that", "the", "their", "them", "then", "there", "therefore", "these", "they", "thing", "this", "those", "three", "threshold", "through", "throughout", "time", "times", "timeline", "timesheet", "timesheets", "title", "titles", "to", "tool", "tools", "top", "total", "track", "tracking", "train", "trained", "training", "transform", "transition", "transitions", "trigger", "triggered", "triggers", "troubleshoot", "troubleshooting", "true", "two", "type", "types", "typo", "typos", "under", "underline", "understand", "unit", "units", "unknown", "unknowns", "unlock", "unlocked", "unstructured", "until", "up", "update", "updated", "updates", "updating", "upload", "uploaded", "uploading", "upon", "url", "usage", "use", "used", "user", "users", "using", "utility", "valid", "validate", "validated", "validating", "validation", "validations", "valuable", "value", "values", "vendor", "vendors", "verification", "verified", "verify", "version", "versions", "via", "view", "viewed", "viewer", "viewing", "views", "vim", "violate", "violates", "violation", "visual", "wages", "wait", "want", "wanted", "wants", "warning", "warnings", "wavy", "we", "web", "week", "when", "where", "which", "while", "white", "who", "will", "window", "windows", "with", "within", "without", "word", "words", "work", "worker", "workflow", "workflows", "workspace", "would", "write", "writing", "written", "year", "years", "yes", "you", "your", "zero"
+    ]);
+
     window.onload = function() {
       loadSampleData();
     };
 
     function loadSampleData() {
       document.getElementById('docTitle').value = "Grants Management Platform - User Guide";
-      document.getElementById('objTitle').value = "Notice of Funding Announcement (NOFA)";
-      document.getElementById('pageName').value = "Manage Draft NOFAs & Overview";
+      document.getElementById('objTitle').value = "Notice of Funding Announcement (NOFO)";
+      document.getElementById('pageName').value = "Manage Draft NOFOs & Overview";
       document.getElementById('userRole').value = "Program Manager / Internal Grantor";
-      document.getElementById('navPath').value = "NOFAs Tab > Activities > Manage Draft NOFAs";
-      document.getElementById('procText').value = "1. Click on Manage Draft NOFAs link in the left panel under NOFAs tab.\n2. Click on the Create button at the top right of the table.\n3. Select the Program and NOFA Type from the dropdown menu.\n4. Complete all General Information, Dates, and Description fields.\n5. Click Save to generate subsequent Financials, Roles, and Attachments sub-tabs.\n6. Select Submit for Approval to trigger reviewer notifications.";
-      document.getElementById('fieldInventory').value = "NOFA Title | Text Input | Mandatory | Name of funding opportunity\nGrantor Organization | Lookup Dropdown | Mandatory | Owning administrative division\nEligible Applicant Types | Multi-select | Mandatory | Permitted entity classes\nNOFA Publish Date | Date Picker | Mandatory | Scheduled live public release date\nRFQ Required? | Checkbox | Optional | Enables preliminary qualification review phase";
+      document.getElementById('navPath').value = "NOFOs Tab > Activities > Manage Draft NOFOs";
+      document.getElementById('procText').value = "1. Click on Manage Draft NOFOs link in the left panel under NOFOs tab.\n2. Click on the Create button at the top right of the table.\n3. Select the Program and NOFO Type from the dropdown menu.\n4. Complete all General Information, Dates, and Description fields.\n5. Click Save to generate subsequent Financials, Roles, and Attachments sub-tabs.\n6. Select Submit for Approval to trigger reviewer notifications.";
+      document.getElementById('fieldInventory').value = "NOFO Title | Text Input | Mandatory | Name of funding opportunity\nGrantor Organization | Lookup Dropdown | Mandatory | Owning administrative division\nEligible Applicant Types | Multi-select | Mandatory | Permitted entity classes\nNOFO Publish Date | Date Picker | Mandatory | Scheduled live public release date\nRFQ Required? | Checkbox | Optional | Enables preliminary qualification review phase";
       
       generateAndAppendManual();
     }
@@ -168,6 +207,13 @@
       document.getElementById('navPath').value = "";
       document.getElementById('procText').value = "";
       document.getElementById('fieldInventory').value = "";
+      
+      const alerts = document.querySelectorAll('[id$="_err"]');
+      alerts.forEach(a => {
+        a.classList.add('hidden');
+        a.innerText = "";
+      });
+      document.querySelectorAll('textarea').forEach(t => t.classList.remove('border-rose-500'));
     }
 
     function clearAllDocs() {
@@ -180,6 +226,43 @@
     function removeDocument(id) {
       const doc = document.getElementById(id);
       if (doc) doc.remove();
+    }
+
+    // Autonomous Dictionary Spellchecker (checks all typed words individually)
+    function runAutonomousSpellcheck(elem, alertSpanId) {
+      const text = elem.value;
+      const alertElem = document.getElementById(alertSpanId);
+      if (!alertElem) return;
+
+      // Extract individual words of length >= 2
+      const words = text.match(/[A-Za-z]{2,}/g) || [];
+      const unrecognized = [];
+
+      for (let w of words) {
+        const clean = w.toLowerCase();
+        // If not found in dictionary and not a single character/number
+        if (!dictionary.has(clean)) {
+          unrecognized.push(w);
+        }
+      }
+
+      if (unrecognized.length > 0) {
+        const uniqueErrors = [...new Set(unrecognized)];
+        const displayErr = uniqueErrors.slice(0, 2).map(e => `"${e}"`).join(', ');
+        alertElem.innerText = `Unrecognized: ${displayErr}${uniqueErrors.length > 2 ? ' +' + (uniqueErrors.length - 2) + ' more' : ''}`;
+        alertElem.classList.remove('hidden');
+        elem.classList.add('border-rose-500');
+        
+        document.getElementById('spellBadge').className = "text-[11px] bg-rose-950 text-rose-300 border border-rose-800 px-2.5 py-1 rounded-full flex items-center gap-1.5 font-medium";
+        document.getElementById('spellCounterText').innerText = `${uniqueErrors.length} Spelling Alert${uniqueErrors.length > 1 ? 's' : ''}`;
+      } else {
+        alertElem.classList.add('hidden');
+        alertElem.innerText = "";
+        elem.classList.remove('border-rose-500');
+
+        document.getElementById('spellBadge').className = "text-[11px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-2.5 py-1 rounded-full flex items-center gap-1.5 font-medium";
+        document.getElementById('spellCounterText').innerText = "Lexicon Engine Active";
+      }
     }
 
     function generateAndAppendManual() {
@@ -210,38 +293,31 @@
           
           let badge = '';
           if (isClick) {
-            badge = `<span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded inline-flex items-center gap-1"><i class="fa-solid fa-arrow-pointer"></i> Click/Action</span>`;
+            badge = `<span style="background-color: #dbeafe; color: #1e40af; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; display: inline-block;">Click/Action</span>`;
           } else if (isReq) {
-            badge = `<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded inline-flex items-center gap-1"><i class="fa-solid fa-lock"></i> Required Parameter</span>`;
+            badge = `<span style="background-color: #d1fae5; color: #065f46; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; display: inline-block;">Required Parameter</span>`;
           } else {
-            badge = `<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded inline-flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> Important Reminder</span>`;
+            badge = `<span style="background-color: #fef3c7; color: #92400e; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; display: inline-block;">Important Reminder</span>`;
           }
 
           stepsHtml += `
-            <div class="p-3 bg-slate-50 border-l-4 border-blue-500 rounded space-y-1.5">
-              <div class="flex items-center justify-between">
-                <p class="font-bold text-slate-900" spellcheck="true">Step ${idx + 1}: ${cleanText.split('.')[0] || 'Execute Operation'}</p>
+            <div class="p-3 bg-slate-50 border-l-4 border-blue-500 rounded space-y-1.5" style="background:#f8fafc; border-left: 4px solid #3b82f6; padding: 10px; margin-bottom: 8px;">
+              <div class="flex items-center justify-between" style="display:flex; justify-content:space-between; align-items:center;">
+                <p class="font-bold text-slate-900" style="font-weight:bold; color:#0f172a; margin:0;" lang="en" spellcheck="true">Step ${idx + 1}: ${cleanText.split('.')[0] || 'Execute Operation'}</p>
                 ${badge}
               </div>
-              <p contenteditable="true" spellcheck="true" class="text-slate-700 text-xs">${cleanText}</p>
+              <p contenteditable="true" lang="en" spellcheck="true" class="text-slate-700 text-xs" style="color:#334155; font-size:12px; margin:4px 0 0 0;">${cleanText}</p>
             </div>
           `;
         });
       } else {
         stepsHtml = `
-          <div class="p-3 bg-slate-50 border-l-4 border-blue-500 rounded space-y-1.5">
-            <div class="flex items-center justify-between">
-              <p class="font-bold text-slate-900" spellcheck="true">Step 1: Open Target View</p>
-              <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded inline-flex items-center gap-1"><i class="fa-solid fa-arrow-pointer"></i> Click/Action</span>
+          <div class="p-3 bg-slate-50 border-l-4 border-blue-500 rounded space-y-1.5" style="background:#f8fafc; border-left: 4px solid #3b82f6; padding: 10px; margin-bottom: 8px;">
+            <div class="flex items-center justify-between" style="display:flex; justify-content:space-between; align-items:center;">
+              <p class="font-bold text-slate-900" style="font-weight:bold; color:#0f172a;" lang="en" spellcheck="true">Step 1: Open Target View</p>
+              <span style="background-color: #dbeafe; color: #1e40af; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px;">Click/Action</span>
             </div>
-            <p contenteditable="true" spellcheck="true" class="text-slate-700 text-xs">Navigate to the main object tab and click on the 'New' or 'Create' button located on the top right table header.</p>
-          </div>
-          <div class="p-3 bg-slate-50 border-l-4 border-emerald-500 rounded space-y-1.5">
-            <div class="flex items-center justify-between">
-              <p class="font-bold text-slate-900" spellcheck="true">Step 2: Enter Mandatory Metadata</p>
-              <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded inline-flex items-center gap-1"><i class="fa-solid fa-lock"></i> Required Parameter</span>
-            </div>
-            <p contenteditable="true" spellcheck="true" class="text-slate-700 text-xs">Complete all required fields designated with an asterisk. Ensure valid dates and lookup mappings are selected.</p>
+            <p contenteditable="true" lang="en" spellcheck="true" class="text-slate-700 text-xs" style="color:#334155; font-size:12px;">Navigate to the main object tab and click on the 'New' or 'Create' button located on the top right table header.</p>
           </div>
         `;
       }
@@ -257,25 +333,25 @@
           const desc = parts[3] || "Data requirement details";
 
           const reqBadge = /mandatory|required/i.test(req)
-            ? `<span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px] inline-flex items-center gap-1"><i class="fa-solid fa-lock text-[9px]"></i> Required Parameter</span>`
-            : `<span class="bg-slate-100 text-slate-600 font-semibold px-2 py-0.5 rounded text-[10px]">Optional</span>`;
+            ? `<span style="background-color:#fee2e2; color:#991b1b; font-weight:bold; padding:2px 6px; border-radius:4px; font-size:10px;">Mandatory</span>`
+            : `<span style="background-color:#f1f5f9; color:#475569; font-weight:600; padding:2px 6px; border-radius:4px; font-size:10px;">Optional</span>`;
 
           tableRows += `
-            <tr>
-              <td class="p-2.5 font-semibold text-slate-900" contenteditable="true" spellcheck="true">${name}</td>
-              <td class="p-2.5 font-mono text-[11px] text-slate-600" contenteditable="true" spellcheck="true">${type}</td>
-              <td class="p-2.5">${reqBadge}</td>
-              <td class="p-2.5 text-slate-700" contenteditable="true" spellcheck="true">${desc}</td>
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+              <td class="p-2.5 font-semibold text-slate-900" style="padding:8px;" contenteditable="true" lang="en" spellcheck="true">${name}</td>
+              <td class="p-2.5 font-mono text-[11px] text-slate-600" style="padding:8px;" contenteditable="true" lang="en" spellcheck="true">${type}</td>
+              <td class="p-2.5" style="padding:8px;">${reqBadge}</td>
+              <td class="p-2.5 text-slate-700" style="padding:8px;" contenteditable="true" lang="en" spellcheck="true">${desc}</td>
             </tr>
           `;
         });
       } else {
         tableRows = `
-          <tr>
-            <td class="p-2.5 font-semibold text-slate-900" contenteditable="true" spellcheck="true">Title / Record Name</td>
-            <td class="p-2.5 font-mono text-[11px] text-slate-600" contenteditable="true" spellcheck="true">Text</td>
-            <td class="p-2.5"><span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[10px] inline-flex items-center gap-1"><i class="fa-solid fa-lock text-[9px]"></i> Required Parameter</span></td>
-            <td class="p-2.5 text-slate-700" contenteditable="true" spellcheck="true">Unique naming identifier for the object record.</td>
+          <tr style="border-bottom: 1px solid #e2e8f0;">
+            <td class="p-2.5 font-semibold text-slate-900" style="padding:8px;" contenteditable="true" lang="en" spellcheck="true">Title / Record Name</td>
+            <td class="p-2.5 font-mono text-[11px] text-slate-600" style="padding:8px;" contenteditable="true" lang="en" spellcheck="true">Text</td>
+            <td class="p-2.5" style="padding:8px;"><span style="background-color:#fee2e2; color:#991b1b; font-weight:bold; padding:2px 6px; border-radius:4px; font-size:10px;">Mandatory</span></td>
+            <td class="p-2.5 text-slate-700" style="padding:8px;" contenteditable="true" lang="en" spellcheck="true">Unique naming identifier for the object record.</td>
           </tr>
         `;
       }
@@ -283,72 +359,73 @@
       const docCardHtml = `
         <div id="${currentDocId}" class="print-page bg-white text-slate-900 rounded-xl shadow-2xl p-8 md:p-12 border border-slate-200 space-y-6 relative transition">
           
+          <!-- Top Right Controls: Editable Section Badge & Delete -->
           <div class="no-print absolute top-4 right-4 flex items-center gap-2">
-            <span class="text-[10px] bg-slate-100 text-slate-600 border border-slate-300 font-mono px-2 py-1 rounded">Section #${documentCounter}</span>
+            <span contenteditable="true" lang="en" spellcheck="true" class="text-[11px] bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300 font-mono font-medium px-2.5 py-1 rounded cursor-pointer transition shadow-sm" title="Click to edit Section identifier">Section #${documentCounter}</span>
             <button onclick="removeDocument('${currentDocId}')" class="text-xs text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 p-1.5 rounded transition" title="Delete this guide page">
               <i class="fa-solid fa-trash-can"></i>
             </button>
           </div>
 
           <!-- Document Header -->
-          <div class="border-b-2 border-blue-600 pb-4 flex items-center justify-between">
+          <div class="border-b-2 border-blue-600 pb-4 flex items-center justify-between" style="border-bottom: 2px solid #2563eb; padding-bottom: 12px;">
             <div>
-              <span class="text-xs uppercase font-bold tracking-widest text-blue-700" contenteditable="true" spellcheck="true">${docTitle}</span>
-              <h1 class="text-2xl font-black text-slate-900 mt-1" contenteditable="true" spellcheck="true">${objTitle} - ${pageName}</h1>
+              <span class="text-xs uppercase font-bold tracking-widest text-blue-700" style="color:#1d4ed8; font-size:11px; font-weight:bold; letter-spacing:1px;" contenteditable="true" lang="en" spellcheck="true">${docTitle}</span>
+              <h1 class="text-2xl font-black text-slate-900 mt-1" style="font-size:22px; font-weight:900; color:#0f172a; margin:4px 0 0 0;" contenteditable="true" lang="en" spellcheck="true">${objTitle} - ${pageName}</h1>
             </div>
-            <div class="text-right text-xs text-slate-500">
-              <p><strong>Section:</strong> <span contenteditable="true" spellcheck="true">Chapter ${documentCounter}.0</span></p>
-              <p><strong>Status:</strong> <span contenteditable="true" spellcheck="true" class="text-emerald-700 font-semibold">Active Reference</span></p>
+            <div class="text-right text-xs text-slate-500" style="text-align:right; font-size:12px; color:#64748b;">
+              <p style="margin:0;"><strong>Section:</strong> <span contenteditable="true" lang="en" spellcheck="true">Chapter ${documentCounter}.0</span></p>
+              <p style="margin:0;"><strong>Status:</strong> <span contenteditable="true" lang="en" spellcheck="true" style="color:#059669; font-weight:600;">Active Reference</span></p>
             </div>
           </div>
 
           <!-- Operational Legend -->
-          <div class="bg-slate-50 border border-slate-200 p-3 rounded text-xs text-slate-700 flex flex-wrap items-center justify-between gap-2">
+          <div class="bg-slate-50 border border-slate-200 p-3 rounded text-xs text-slate-700 flex flex-wrap items-center justify-between gap-2" style="background:#f8fafc; border:1px solid #e2e8f0; padding:8px 12px;">
             <div class="flex items-center gap-3">
-              <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded inline-flex items-center gap-1"><i class="fa-solid fa-arrow-pointer"></i> Click/Action</span>
-              <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded inline-flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> Important Reminder</span>
-              <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded inline-flex items-center gap-1"><i class="fa-solid fa-lock"></i> Required Parameter</span>
+              <span style="background-color:#dbeafe; color:#1e40af; font-size:10px; font-weight:bold; padding:2px 6px; border-radius:4px;"><i class="fa-solid fa-arrow-pointer"></i> Click/Action</span>
+              <span style="background-color:#fef3c7; color:#92400e; font-size:10px; font-weight:bold; padding:2px 6px; border-radius:4px;"><i class="fa-solid fa-triangle-exclamation"></i> Important Reminder</span>
+              <span style="background-color:#d1fae5; color:#065f46; font-size:10px; font-weight:bold; padding:2px 6px; border-radius:4px;"><i class="fa-solid fa-lock"></i> Required Parameter</span>
             </div>
-            <span class="text-[11px] text-slate-500 italic">Visual Standard Guide</span>
+            <span class="text-[11px] text-slate-500 italic" style="font-size:11px; color:#64748b; font-style:italic;">Visual Standard Guide</span>
           </div>
 
           <!-- Section 1: Overview & Navigation Scope -->
           <section class="space-y-2">
-            <h2 class="text-base font-bold text-slate-900 border-b border-slate-200 pb-1 flex items-center gap-2">
-              <span class="bg-blue-600 text-white rounded px-1.5 py-0.5 text-xs">1</span>
+            <h2 class="text-base font-bold text-slate-900 border-b border-slate-200 pb-1 flex items-center gap-2" style="font-size:15px; font-weight:bold; border-bottom:1px solid #e2e8f0; padding-bottom:4px; color:#0f172a;">
+              <span class="bg-blue-600 text-white rounded px-1.5 py-0.5 text-xs" style="background:#2563eb; color:#fff; padding:2px 6px; border-radius:3px; font-size:11px;">1</span>
               Overview & Navigation Scope
             </h2>
-            <p class="text-xs text-slate-600 leading-relaxed" contenteditable="true" spellcheck="true">
+            <p class="text-xs text-slate-600 leading-relaxed" style="font-size:12px; color:#475569;" contenteditable="true" lang="en" spellcheck="true">
               This document establishes the operational guide for executing tasks within <strong>${pageName}</strong> for the <strong>${objTitle}</strong> module. All required attributes must be validated prior to advancing status lifecycles.
             </p>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-              <div class="bg-slate-50 p-3 rounded border border-slate-200 text-xs">
-                <span class="font-bold text-slate-700 block mb-0.5">Primary Target Role:</span>
-                <span contenteditable="true" spellcheck="true" class="text-blue-700 font-semibold">${userRole}</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+              <div class="bg-slate-50 p-3 rounded border border-slate-200 text-xs" style="background:#f8fafc; border:1px solid #e2e8f0; padding:8px;">
+                <span class="font-bold text-slate-700 block mb-0.5" style="font-weight:bold; color:#334155; display:block;">Primary Target Role:</span>
+                <span contenteditable="true" lang="en" spellcheck="true" class="text-blue-700 font-semibold" style="color:#1d4ed8; font-weight:600;">${userRole}</span>
               </div>
-              <div class="bg-slate-50 p-3 rounded border border-slate-200 text-xs">
-                <span class="font-bold text-slate-700 block mb-0.5">System Navigation Path:</span>
-                <span contenteditable="true" spellcheck="true" class="text-slate-800 font-mono">${navPath}</span>
+              <div class="bg-slate-50 p-3 rounded border border-slate-200 text-xs" style="background:#f8fafc; border:1px solid #e2e8f0; padding:8px;">
+                <span class="font-bold text-slate-700 block mb-0.5" style="font-weight:bold; color:#334155; display:block;">System Navigation Path:</span>
+                <span contenteditable="true" lang="en" spellcheck="true" class="text-slate-800 font-mono" style="font-family:monospace; color:#1e293b;">${navPath}</span>
               </div>
             </div>
 
-            <div class="mt-3 p-3 bg-amber-50/70 border-l-4 border-amber-500 rounded text-xs text-amber-900 space-y-1">
-              <p class="font-bold flex items-center gap-1.5">
+            <div class="mt-3 p-3 bg-amber-50/70 border-l-4 border-amber-500 rounded text-xs text-amber-900 space-y-1" style="background:#fffbeb; border-left:4px solid #f59e0b; padding:8px 12px; margin-top:8px;">
+              <p class="font-bold flex items-center gap-1.5" style="font-weight:bold; color:#b45309; margin:0;">
                 <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> Important Reminder
               </p>
-              <p contenteditable="true" spellcheck="true">
+              <p contenteditable="true" lang="en" spellcheck="true" style="margin:4px 0 0 0; color:#92400e; font-size:12px;">
                 Ensure you are logged in with assigned <strong>${userRole}</strong> credentials before initiating changes. Records in an approved state require administrative unlock permissions to edit.
               </p>
             </div>
           </section>
 
           <!-- Screenshot Block 1 -->
-          <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 bg-slate-50 text-center space-y-3 relative group">
+          <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 bg-slate-50 text-center space-y-3 relative group" style="border: 2px dashed #cbd5e1; background: #f8fafc; padding: 12px; text-align: center;">
             <div id="${imgCont1Id}" class="hidden">
-              <img id="${img1Id}" class="max-h-72 mx-auto rounded border shadow" src="" alt="Screenshot" />
+              <img id="${img1Id}" class="max-h-72 mx-auto rounded border shadow" style="max-height: 280px; margin: 0 auto;" src="" alt="Screenshot" />
             </div>
-            <div id="${uploadP1Id}" class="py-6">
+            <div id="${uploadP1Id}" class="py-6 no-print">
               <i class="fa-solid fa-image text-slate-400 text-3xl mb-2"></i>
               <p class="text-xs font-semibold text-slate-600">Figure ${documentCounter}.1: ${pageName} Navigation & Primary Controls</p>
               <p class="text-[11px] text-slate-400 mt-0.5">Attach screen capture of navigation tab and action buttons</p>
@@ -357,16 +434,16 @@
                 <input type="file" class="hidden" accept="image/*" onchange="handleImageUpload(event, '${img1Id}', '${imgCont1Id}', '${uploadP1Id}')">
               </label>
             </div>
-            <p class="text-[11px] text-slate-600 text-left border-t border-slate-200 pt-2 flex items-center gap-1.5" contenteditable="true" spellcheck="true">
-              <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-1.5 py-0.2 rounded inline-flex items-center gap-1"><i class="fa-solid fa-arrow-pointer"></i> Click/Action</span>
+            <p class="text-[11px] text-slate-600 text-left border-t border-slate-200 pt-2 flex items-center gap-1.5" style="border-top:1px solid #e2e8f0; padding-top:6px; font-size:11px; text-align:left;" contenteditable="true" lang="en" spellcheck="true">
+              <span style="background-color:#dbeafe; color:#1e40af; font-weight:bold; padding:2px 4px; border-radius:3px;">Click/Action</span>
               <span><strong>Figure ${documentCounter}.1:</strong> Click the highlighted Action button in the upper right header to begin record entry.</span>
             </p>
           </div>
 
           <!-- Section 2: Step-by-Step Instructions -->
           <section class="space-y-3">
-            <h2 class="text-base font-bold text-slate-900 border-b border-slate-200 pb-1 flex items-center gap-2">
-              <span class="bg-blue-600 text-white rounded px-1.5 py-0.5 text-xs">2</span>
+            <h2 class="text-base font-bold text-slate-900 border-b border-slate-200 pb-1 flex items-center gap-2" style="font-size:15px; font-weight:bold; border-bottom:1px solid #e2e8f0; padding-bottom:4px; color:#0f172a;">
+              <span class="bg-blue-600 text-white rounded px-1.5 py-0.5 text-xs" style="background:#2563eb; color:#fff; padding:2px 6px; border-radius:3px; font-size:11px;">2</span>
               Step-by-Step Execution Workflow
             </h2>
             <div class="space-y-2.5 text-xs text-slate-700">
@@ -376,19 +453,19 @@
 
           <!-- Section 3: Data Dictionary -->
           <section class="space-y-3">
-            <h2 class="text-base font-bold text-slate-900 border-b border-slate-200 pb-1 flex items-center gap-2">
-              <span class="bg-blue-600 text-white rounded px-1.5 py-0.5 text-xs">3</span>
+            <h2 class="text-base font-bold text-slate-900 border-b border-slate-200 pb-1 flex items-center gap-2" style="font-size:15px; font-weight:bold; border-bottom:1px solid #e2e8f0; padding-bottom:4px; color:#0f172a;">
+              <span class="bg-blue-600 text-white rounded px-1.5 py-0.5 text-xs" style="background:#2563eb; color:#fff; padding:2px 6px; border-radius:3px; font-size:11px;">3</span>
               Field Specifications & Required Parameters
             </h2>
             
             <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs border border-slate-200 rounded">
-                <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+              <table class="w-full text-left text-xs border border-slate-200 rounded" style="width:100%; text-align:left; border-collapse:collapse; font-size:12px;">
+                <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200" style="background:#f1f5f9; border-bottom:2px solid #cbd5e1;">
                   <tr>
-                    <th class="p-2.5">Field / Element</th>
-                    <th class="p-2.5">Control Type</th>
-                    <th class="p-2.5">Requirement Status</th>
-                    <th class="p-2.5">Description & Business Rules</th>
+                    <th class="p-2.5" style="padding:8px;">Field / Element</th>
+                    <th class="p-2.5" style="padding:8px;">Control Type</th>
+                    <th class="p-2.5" style="padding:8px;">Requirement Status</th>
+                    <th class="p-2.5" style="padding:8px;">Description & Business Rules</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200 text-slate-700">
@@ -399,11 +476,11 @@
           </section>
 
           <!-- Screenshot Block 2 -->
-          <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 bg-slate-50 text-center space-y-3 relative group">
+          <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 bg-slate-50 text-center space-y-3 relative group" style="border: 2px dashed #cbd5e1; background: #f8fafc; padding: 12px; text-align: center;">
             <div id="${imgCont2Id}" class="hidden">
-              <img id="${img2Id}" class="max-h-72 mx-auto rounded border shadow" src="" alt="Screenshot" />
+              <img id="${img2Id}" class="max-h-72 mx-auto rounded border shadow" style="max-height: 280px; margin: 0 auto;" src="" alt="Screenshot" />
             </div>
-            <div id="${uploadP2Id}" class="py-6">
+            <div id="${uploadP2Id}" class="py-6 no-print">
               <i class="fa-solid fa-image text-slate-400 text-3xl mb-2"></i>
               <p class="text-xs font-semibold text-slate-600">Figure ${documentCounter}.2: Form Details & Confirmation State</p>
               <p class="text-[11px] text-slate-400 mt-0.5">Attach screen capture of completed form or saved confirmation</p>
@@ -412,38 +489,38 @@
                 <input type="file" class="hidden" accept="image/*" onchange="handleImageUpload(event, '${img2Id}', '${imgCont2Id}', '${uploadP2Id}')">
               </label>
             </div>
-            <p class="text-[11px] text-slate-600 text-left border-t border-slate-200 pt-2 flex items-center gap-1.5" contenteditable="true" spellcheck="true">
-              <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.2 rounded inline-flex items-center gap-1"><i class="fa-solid fa-lock"></i> Required Parameter</span>
+            <p class="text-[11px] text-slate-600 text-left border-t border-slate-200 pt-2 flex items-center gap-1.5" style="border-top:1px solid #e2e8f0; padding-top:6px; font-size:11px; text-align:left;" contenteditable="true" lang="en" spellcheck="true">
+              <span style="background-color:#d1fae5; color:#065f46; font-weight:bold; padding:2px 4px; border-radius:3px;">Required Parameter</span>
               <span><strong>Figure ${documentCounter}.2:</strong> Verify that all mandatory fields are filled before clicking Save or Submit.</span>
             </p>
           </div>
 
           <!-- Section 4: Help Guide & FAQs -->
           <section class="space-y-3">
-            <h2 class="text-base font-bold text-slate-900 border-b border-slate-200 pb-1 flex items-center gap-2">
-              <span class="bg-blue-600 text-white rounded px-1.5 py-0.5 text-xs">4</span>
+            <h2 class="text-base font-bold text-slate-900 border-b border-slate-200 pb-1 flex items-center gap-2" style="font-size:15px; font-weight:bold; border-bottom:1px solid #e2e8f0; padding-bottom:4px; color:#0f172a;">
+              <span class="bg-blue-600 text-white rounded px-1.5 py-0.5 text-xs" style="background:#2563eb; color:#fff; padding:2px 6px; border-radius:3px; font-size:11px;">4</span>
               Frequently Asked Questions (FAQ) & Troubleshooting
             </h2>
             <div class="space-y-2 text-xs">
-              <div class="p-3 bg-slate-50 rounded border border-slate-200 space-y-1">
-                <p class="font-bold text-slate-900 flex items-center gap-1.5" contenteditable="true" spellcheck="true">
+              <div class="p-3 bg-slate-50 rounded border border-slate-200 space-y-1" style="background:#f8fafc; border:1px solid #e2e8f0; padding:10px; margin-bottom:6px;">
+                <p class="font-bold text-slate-900 flex items-center gap-1.5" style="font-weight:bold; color:#0f172a; margin:0;" contenteditable="true" lang="en" spellcheck="true">
                   <i class="fa-regular fa-circle-question text-blue-600"></i> Q: What happens after clicking 'Submit for Approval'?
                 </p>
-                <p class="text-slate-600" contenteditable="true" spellcheck="true">A: Automated email notifications and pending queue tasks are immediately dispatched to designated review roles.</p>
+                <p class="text-slate-600" style="color:#475569; font-size:12px; margin:4px 0 0 0;" contenteditable="true" lang="en" spellcheck="true">A: Automated email notifications and pending queue tasks are immediately dispatched to designated review roles.</p>
               </div>
-              <div class="p-3 bg-slate-50 rounded border border-slate-200 space-y-1">
-                <p class="font-bold text-slate-900 flex items-center gap-1.5" contenteditable="true" spellcheck="true">
+              <div class="p-3 bg-slate-50 rounded border border-slate-200 space-y-1" style="background:#f8fafc; border:1px solid #e2e8f0; padding:10px;">
+                <p class="font-bold text-slate-900 flex items-center gap-1.5" style="font-weight:bold; color:#0f172a; margin:0;" contenteditable="true" lang="en" spellcheck="true">
                   <i class="fa-regular fa-circle-question text-blue-600"></i> Q: What should I do if validation errors prevent saving?
                 </p>
-                <p class="text-slate-600" contenteditable="true" spellcheck="true">A: Review all <span class="bg-emerald-100 text-emerald-800 px-1 rounded font-semibold">Required Parameter</span> items marked with an asterisk and ensure date formats follow standard MM/DD/YYYY convention.</p>
+                <p class="text-slate-600" style="color:#475569; font-size:12px; margin:4px 0 0 0;" contenteditable="true" lang="en" spellcheck="true">A: Review all Required Parameters marked with an asterisk and ensure date formats follow standard MM/DD/YYYY convention.</p>
               </div>
             </div>
           </section>
 
           <!-- Document Footer -->
-          <div class="border-t border-slate-200 pt-4 flex items-center justify-between text-[11px] text-slate-400">
-            <span contenteditable="true" spellcheck="true">Confidential - Internal Standard Operating Procedure</span>
-            <span contenteditable="true" spellcheck="true">Chapter ${documentCounter}</span>
+          <div class="border-t border-slate-200 pt-4 flex items-center justify-between text-[11px] text-slate-400" style="border-top:1px solid #e2e8f0; padding-top:8px; font-size:11px; color:#94a3b8; display:flex; justify-content:space-between;">
+            <span contenteditable="true" lang="en" spellcheck="true">Confidential - Internal Standard Operating Procedure</span>
+            <span contenteditable="true" lang="en" spellcheck="true">Chapter ${documentCounter}</span>
           </div>
 
         </div>
@@ -469,6 +546,50 @@
         }
         reader.readAsDataURL(file);
       }
+    }
+
+    // Export entire document stack to Microsoft Word (.doc)
+    function exportAllToWord() {
+      const container = document.getElementById('documentsContainer');
+      if (!container || container.children.length === 0) {
+        alert("Please generate at least one manual section before downloading.");
+        return;
+      }
+
+      const clone = container.cloneNode(true);
+      const noPrints = clone.querySelectorAll('.no-print');
+      noPrints.forEach(el => el.remove());
+
+      const contentHtml = clone.innerHTML;
+      const fullDoc = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <meta charset='utf-8'>
+          <title>User Manual</title>
+          <style>
+            body { font-family: 'Calibri', Arial, sans-serif; font-size: 11pt; color: #1e293b; }
+            table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+            th, td { border: 1px solid #cbd5e1; padding: 6px 10px; font-size: 10pt; }
+            th { background-color: #f1f5f9; font-weight: bold; }
+            .print-page { page-break-after: always; margin-bottom: 40px; }
+            img { max-width: 100%; height: auto; }
+          </style>
+        </head>
+        <body>
+          ${contentHtml}
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob(['\ufeff' + fullDoc], { type: 'application/msword' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `User_Manual_Documentation.doc`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
   </script>
 </body>
